@@ -1,4 +1,5 @@
 <?php
+
 namespace Wamania\Snowball\Tests;
 
 use PHPUnit\Framework\TestCase;
@@ -9,13 +10,13 @@ class FinnishTest extends TestCase
     /**
      * @dataProvider load
      */
-    public function testStem($word, $stem)
+    public function testStem($word, $stem): void
     {
         $o = new Finnish();
 
         $snowballStem = $o->stem($word);
 
-		$this->assertEquals($stem, $snowballStem);
+        self::assertEquals($stem, $snowballStem);
     }
 
     public function load()

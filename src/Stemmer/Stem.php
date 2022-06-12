@@ -6,75 +6,84 @@ use voku\helper\UTF8;
 
 abstract class Stem implements Stemmer
 {
-    protected static $vowels = array('a', 'e', 'i', 'o', 'u', 'y');
+    protected static $vowels = ['a', 'e', 'i', 'o', 'u', 'y'];
 
     /**
-     * helper, contains stringified list of vowels
+     * helper, contains stringified list of vowels.
+     *
      * @var string
      */
     protected $plainVowels;
 
     /**
-     * The word we are stemming
+     * The word we are stemming.
+     *
      * @var string
      */
     protected $word;
 
     /**
-     * The original word, use to check if word has been modified
+     * The original word, use to check if word has been modified.
+     *
      * @var string
      */
     protected $originalWord;
 
     /**
-     * RV value
+     * RV value.
+     *
      * @var string
      */
     protected $rv;
 
     /**
-     * RV index (based on the beginning of the word)
-     * @var integer
+     * RV index (based on the beginning of the word).
+     *
+     * @var int
      */
     protected $rvIndex;
 
     /**
-     * R1 value
-     * @var integer
+     * R1 value.
+     *
+     * @var int
      */
     protected $r1;
 
     /**
-     * R1 index (based on the beginning of the word)
+     * R1 index (based on the beginning of the word).
+     *
      * @var int
      */
     protected $r1Index;
 
     /**
-     * R2 value
-     * @var integer
+     * R2 value.
+     *
+     * @var int
      */
     protected $r2;
 
     /**
-     * R2 index (based on the beginning of the word)
+     * R2 index (based on the beginning of the word).
+     *
      * @var int
      */
     protected $r2Index;
 
     protected function inRv($position)
     {
-        return ($position >= $this->rvIndex);
+        return $position >= $this->rvIndex;
     }
 
     protected function inR1($position)
     {
-        return ($position >= $this->r1Index);
+        return $position >= $this->r1Index;
     }
 
     protected function inR2($position)
     {
-        return ($position >= $this->r2Index);
+        return $position >= $this->r2Index;
     }
 
     protected function searchIfInRv($suffixes)
@@ -99,7 +108,7 @@ abstract class Stem implements Stemmer
             return false;
         }
         foreach ($suffixes as $suffixe) {
-            if ( (($position = UTF8::strrpos($this->word, $suffixe, $offset)) !== false) && ((Utf8::strlen($suffixe)+$position) == $length) ) {
+            if ((($position = UTF8::strrpos($this->word, $suffixe, $offset)) !== false) && ((Utf8::strlen($suffixe) + $position) == $length)) {
                 return $position;
             }
         }
@@ -110,17 +119,17 @@ abstract class Stem implements Stemmer
     /**
      * R1 is the region after the first non-vowel following a vowel, or the end of the word if there is no such non-vowel.
      */
-    protected function r1()
+    protected function r1(): void
     {
-        list($this->r1Index, $this->r1) = $this->rx($this->word);
+        [$this->r1Index, $this->r1] = $this->rx($this->word);
     }
 
     /**
      * R2 is the region after the first non-vowel following a vowel in R1, or the end of the word if there is no such non-vowel.
      */
-    protected function r2()
+    protected function r2(): void
     {
-        list($index, $value) = $this->rx($this->r1);
+        [$index, $value] = $this->rx($this->r1);
 
         $this->r2 = $value;
         $this->r2Index = $this->r1Index + $index;
@@ -130,7 +139,7 @@ abstract class Stem implements Stemmer
      * Common function for R1 and R2
      * Search the region after the first non-vowel following a vowel in $word, or the end of the word if there is no such non-vowel.
      * R1 : $in = $this->word
-     * R2 : $in = R1
+     * R2 : $in = R1.
      */
     protected function rx($in)
     {
@@ -141,8 +150,8 @@ abstract class Stem implements Stemmer
         $index = $length;
 
         // we search all vowels
-        $vowels = array();
-        for ($i=0; $i<$length; $i++) {
+        $vowels = [];
+        for ($i = 0; $i < $length; ++$i) {
             $letter = UTF8::substr($in, $i, 1);
             if (in_array($letter, static::$vowels)) {
                 $vowels[] = $i;
@@ -154,19 +163,19 @@ abstract class Stem implements Stemmer
             $after = $position + 1;
             $letter = UTF8::substr($in, $after, 1);
 
-            if (! in_array($letter, static::$vowels)) {
+            if (!in_array($letter, static::$vowels)) {
                 $index = $after + 1;
-                $value = UTF8::substr($in, ($after+1));
+                $value = UTF8::substr($in, ($after + 1));
 
                 break;
             }
         }
 
-        return array($index, $value);
+        return [$index, $value];
     }
 
     /**
-     * Used by spanish, italian, portuguese, etc (but not by french)
+     * Used by spanish, italian, portuguese, etc (but not by french).
      *
      * If the second letter is a consonant, RV is the region after the next following vowel,
      * or if the first two letters are vowels, RV is the region after the next consonant,
@@ -189,32 +198,35 @@ abstract class Stem implements Stemmer
 
         // If the second letter is a consonant, RV is the region after the next following vowel,
         if (!in_array($second, static::$vowels)) {
-            for ($i=2; $i<$length; $i++) {
+            for ($i = 2; $i < $length; ++$i) {
                 $letter = UTF8::substr($this->word, $i, 1);
                 if (in_array($letter, static::$vowels)) {
                     $this->rvIndex = $i + 1;
-                    $this->rv = UTF8::substr($this->word, ($i+1));
+                    $this->rv = UTF8::substr($this->word, ($i + 1));
+
                     return true;
                 }
             }
         }
 
         // or if the first two letters are vowels, RV is the region after the next consonant,
-        if ( (in_array($first, static::$vowels)) && (in_array($second, static::$vowels)) ) {
-            for ($i=2; $i<$length; $i++) {
+        if ((in_array($first, static::$vowels)) && (in_array($second, static::$vowels))) {
+            for ($i = 2; $i < $length; ++$i) {
                 $letter = UTF8::substr($this->word, $i, 1);
-                if (! in_array($letter, static::$vowels)) {
+                if (!in_array($letter, static::$vowels)) {
                     $this->rvIndex = $i + 1;
-                    $this->rv = UTF8::substr($this->word, ($i+1));
+                    $this->rv = UTF8::substr($this->word, ($i + 1));
+
                     return true;
                 }
             }
         }
 
         // and otherwise (consonant-vowel case) RV is the region after the third letter.
-        if ( (! in_array($first, static::$vowels)) && (in_array($second, static::$vowels)) ) {
+        if ((!in_array($first, static::$vowels)) && (in_array($second, static::$vowels))) {
             $this->rv = UTF8::substr($this->word, 3);
             $this->rvIndex = 3;
+
             return true;
         }
     }

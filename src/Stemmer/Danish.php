@@ -2,20 +2,20 @@
 
 namespace Wamania\Snowball\Stemmer;
 
+use Exception;
 use voku\helper\UTF8;
 
 /**
+ * @see http://snowball.tartarus.org/algorithms/danish/stemmer.html
  *
- * @link http://snowball.tartarus.org/algorithms/danish/stemmer.html
  * @author wamania
- *
  */
 class Danish extends Stem
 {
     /**
-     * All danish vowels
+     * All danish vowels.
      */
-    protected static $vowels = array('a', 'e', 'i', 'o', 'u', 'y', 'æ', 'å', 'ø');
+    protected static $vowels = ['a', 'e', 'i', 'o', 'u', 'y', 'æ', 'å', 'ø'];
 
     /**
      * {@inheritdoc}
@@ -24,7 +24,7 @@ class Danish extends Stem
     {
         // we do ALL in UTF-8
         if (!UTF8::is_utf8($word)) {
-            throw new \Exception('Word must be in UTF-8');
+            throw new Exception('Word must be in UTF-8');
         }
 
         $this->word = UTF8::strtolower($word);
@@ -49,15 +49,15 @@ class Danish extends Stem
 
     /**
      * Define a valid s-ending as one of
-     * a   b   c   d   f   g   h   j   k   l   m   n   o   p   r   t   v   y   z   å
+     * a   b   c   d   f   g   h   j   k   l   m   n   o   p   r   t   v   y   z   å.
      *
-     * @param string $ending
-     * @return boolean
+     * @return bool
      */
     private function hasValidSEnding($word)
     {
         $lastLetter = UTF8::substr($word, -1, 1);
-        return in_array($lastLetter, array('a', 'b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'r', 't', 'v', 'y', 'z', 'å'));
+
+        return in_array($lastLetter, ['a', 'b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'r', 't', 'v', 'y', 'z', 'å']);
     }
 
     /**
@@ -69,22 +69,24 @@ class Danish extends Stem
         // hed   ethed   ered   e   erede   ende   erende   ene   erne   ere   en   heden   eren   er   heder   erer
         // heds   es   endes   erendes   enes   ernes   eres   ens   hedens   erens   ers   ets   erets   et   eret
         //      delete
-        if ( ($position = $this->searchIfInR1(array(
+        if (($position = $this->searchIfInR1([
             'erendes', 'erende', 'hedens', 'erede', 'ethed', 'heden', 'endes', 'erets', 'heder', 'ernes',
             'erens', 'ered', 'ende', 'erne', 'eres', 'eren', 'eret', 'erer', 'enes', 'heds',
-            'ens', 'ene', 'ere', 'ers', 'ets', 'hed', 'es', 'et', 'er', 'en', 'e'
-        ))) !== false) {
+            'ens', 'ene', 'ere', 'ers', 'ets', 'hed', 'es', 'et', 'er', 'en', 'e',
+        ])) !== false) {
             $this->word = UTF8::substr($this->word, 0, $position);
+
             return true;
         }
 
         // s
         //      delete if preceded by a valid s-ending
-        if ( ($position = $this->searchIfInR1(array('s'))) !== false) {
+        if (($position = $this->searchIfInR1(['s'])) !== false) {
             $word = UTF8::substr($this->word, 0, $position);
             if ($this->hasValidSEnding($word)) {
                 $this->word = $word;
             }
+
             return true;
         }
     }
@@ -92,37 +94,38 @@ class Danish extends Stem
     /**
      * Step 2
      * Search for one of the following suffixes in R1, and if found delete the last letter.
-     *      gd   dt   gt   kt
+     *      gd   dt   gt   kt.
      */
-    private function step2()
+    private function step2(): void
     {
-        if ($this->searchIfInR1(array('gd', 'dt', 'gt', 'kt')) !== false) {
+        if ($this->searchIfInR1(['gd', 'dt', 'gt', 'kt']) !== false) {
             $this->word = UTF8::substr($this->word, 0, -1);
         }
     }
 
     /**
-     * Step 3:
+     * Step 3:.
      */
     private function step3()
     {
         // If the word ends igst, remove the final st.
-        if ($this->search(array('igst')) !== false) {
+        if ($this->search(['igst']) !== false) {
             $this->word = UTF8::substr($this->word, 0, -2);
         }
 
         // Search for the longest among the following suffixes in R1, and perform the action indicated.
         //  ig   lig   elig   els
         //      delete, and then repeat step 2
-        if ( ($position = $this->searchIfInR1(array('elig', 'lig', 'ig', 'els'))) !== false) {
+        if (($position = $this->searchIfInR1(['elig', 'lig', 'ig', 'els'])) !== false) {
             $this->word = UTF8::substr($this->word, 0, $position);
             $this->step2();
+
             return true;
         }
 
         //  løst
         //      replace with løs
-        if ($this->searchIfInR1(array('løst')) !== false) {
+        if ($this->searchIfInR1(['løst']) !== false) {
             $this->word = UTF8::substr($this->word, 0, -1);
         }
     }
@@ -134,7 +137,7 @@ class Danish extends Stem
     private function step4()
     {
         $length = UTF8::strlen($this->word);
-        if (!$this->inR1(($length-1))) {
+        if (!$this->inR1(($length - 1))) {
             return false;
         }
 
@@ -147,6 +150,7 @@ class Danish extends Stem
         if ($lastLetter == $beforeLastLetter) {
             $this->word = UTF8::substr($this->word, 0, -1);
         }
+
         return true;
     }
 }

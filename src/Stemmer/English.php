@@ -2,25 +2,26 @@
 
 namespace Wamania\Snowball\Stemmer;
 
+use Exception;
 use voku\helper\UTF8;
 
 /**
- * English Porter 2
+ * English Porter 2.
  *
- * @link http://snowball.tartarus.org/algorithms/english/stemmer.html
+ * @see http://snowball.tartarus.org/algorithms/english/stemmer.html
+ *
  * @author wamania
- *
  */
 class English extends Stem
 {
     /**
-     * All english vowels
+     * All english vowels.
      */
-    protected static $vowels = array('a', 'e', 'i', 'o', 'u', 'y');
+    protected static $vowels = ['a', 'e', 'i', 'o', 'u', 'y'];
 
-    protected static $doubles = array('bb', 'dd', 'ff', 'gg', 'mm', 'nn', 'pp', 'rr', 'tt');
+    protected static $doubles = ['bb', 'dd', 'ff', 'gg', 'mm', 'nn', 'pp', 'rr', 'tt'];
 
-    protected static $liEnding = array('c', 'd', 'e', 'g', 'h', 'k', 'm', 'n', 'r', 't');
+    protected static $liEnding = ['c', 'd', 'e', 'g', 'h', 'k', 'm', 'n', 'r', 't'];
 
     /**
      * {@inheritdoc}
@@ -29,7 +30,7 @@ class English extends Stem
     {
         // we do ALL in UTF-8
         if (!UTF8::is_utf8($word)) {
-            throw new \Exception('Word must be in UTF-8');
+            throw new Exception('Word must be in UTF-8');
         }
 
         if (Utf8::strlen($word) < 3) {
@@ -43,7 +44,6 @@ class English extends Stem
             return $word;
         }
 
-
         $this->plainVowels = implode('', self::$vowels);
 
         // Remove initial ', if present.
@@ -56,7 +56,7 @@ class English extends Stem
         if ($first == 'y') {
             $this->word = preg_replace('#^y#u', 'Y', $this->word);
         }
-        $this->word = preg_replace('#(['.$this->plainVowels.'])y#u', '$1Y', $this->word);
+        $this->word = preg_replace('#([' . $this->plainVowels . '])y#u', '$1Y', $this->word);
 
         $this->r1();
         $this->exceptionR1();
@@ -83,11 +83,11 @@ class English extends Stem
 
     /**
      * Step 0
-     * Remove ', 's, 's'
+     * Remove ', 's, 's'.
      */
-    private function step0()
+    private function step0(): void
     {
-        if ( ($position = $this->search(array("'s'", "'s", "'"))) !== false) {
+        if (($position = $this->search(["'s'", "'s", "'"])) !== false) {
             $this->word = UTF8::substr($this->word, 0, $position);
         }
     }
@@ -96,40 +96,43 @@ class English extends Stem
     {
         // sses
         //      replace by ss
-        if ( ($position = $this->search(array('sses'))) !== false) {
+        if (($position = $this->search(['sses'])) !== false) {
             $this->word = preg_replace('#(sses)$#u', 'ss', $this->word);
+
             return true;
         }
 
         // ied+   ies*
         //      replace by i if preceded by more than one letter, otherwise by ie (so ties -> tie, cries -> cri)
-        if ( ($position = $this->search(array('ied', 'ies'))) !== false) {
+        if (($position = $this->search(['ied', 'ies'])) !== false) {
             if ($position > 1) {
                 $this->word = preg_replace('#(ied|ies)$#u', 'i', $this->word);
-
             } else {
                 $this->word = preg_replace('#(ied|ies)$#u', 'ie', $this->word);
             }
+
             return true;
         }
 
         // us+   ss
         //  do nothing
-        if ( ($position = $this->search(array('us', 'ss'))) !== false) {
+        if (($position = $this->search(['us', 'ss'])) !== false) {
             return true;
         }
 
         // s
         //      delete if the preceding word part contains a vowel not immediately before the s (so gas and this retain the s, gaps and kiwis lose it)
-        if ( ($position = $this->search(array('s'))) !== false) {
-            for ($i=0; $i<$position-1; $i++) {
+        if (($position = $this->search(['s'])) !== false) {
+            for ($i = 0; $i < $position - 1; ++$i) {
                 $letter = UTF8::substr($this->word, $i, 1);
 
                 if (in_array($letter, self::$vowels)) {
                     $this->word = UTF8::substr($this->word, 0, $position);
+
                     return true;
                 }
             }
+
             return true;
         }
 
@@ -137,16 +140,17 @@ class English extends Stem
     }
 
     /**
-     * Step 1b
+     * Step 1b.
      */
     private function step1b()
     {
         // eed   eedly+
         //      replace by ee if in R1
-        if ( ($position = $this->search(array('eedly', 'eed'))) !== false) {
+        if (($position = $this->search(['eedly', 'eed'])) !== false) {
             if ($this->inR1($position)) {
                 $this->word = preg_replace('#(eedly|eed)$#u', 'ee', $this->word);
             }
+
             return true;
         }
 
@@ -155,19 +159,17 @@ class English extends Stem
         //      if the word ends at, bl or iz add e (so luxuriat -> luxuriate), or
         //      if the word ends with a double remove the last letter (so hopp -> hop), or
         //      if the word is short, add e (so hop -> hope)
-        if ( ($position = $this->search(array('edly', 'ingly', 'ed', 'ing'))) !== false) {
-            for ($i=0; $i<$position; $i++) {
+        if (($position = $this->search(['edly', 'ingly', 'ed', 'ing'])) !== false) {
+            for ($i = 0; $i < $position; ++$i) {
                 $letter = UTF8::substr($this->word, $i, 1);
 
                 if (in_array($letter, self::$vowels)) {
                     $this->word = UTF8::substr($this->word, 0, $position);
 
-                    if ($this->search(array('at', 'bl', 'iz')) !== false) {
+                    if ($this->search(['at', 'bl', 'iz']) !== false) {
                         $this->word .= 'e';
-
-                    } elseif ( ($position2 = $this->search(self::$doubles)) !== false) {
-                        $this->word = UTF8::substr($this->word, 0, ($position2+1));
-
+                    } elseif (($position2 = $this->search(self::$doubles)) !== false) {
+                        $this->word = UTF8::substr($this->word, 0, ($position2 + 1));
                     } elseif ($this->isShort()) {
                         $this->word .= 'e';
                     }
@@ -175,6 +177,7 @@ class English extends Stem
                     return true;
                 }
             }
+
             return true;
         }
 
@@ -182,7 +185,7 @@ class English extends Stem
     }
 
     /**
-     * Step 1c: *
+     * Step 1c: *.
      */
     private function step1c()
     {
@@ -194,11 +197,11 @@ class English extends Stem
             return true;
         }
 
-        if ( ($position = $this->search(array('y', 'Y'))) !== false) {
+        if (($position = $this->search(['y', 'Y'])) !== false) {
             $before = $position - 1;
             $letter = UTF8::substr($this->word, $before, 1);
 
-            if (! in_array($letter, self::$vowels)) {
+            if (!in_array($letter, self::$vowels)) {
                 $this->word = preg_replace('#(y|Y)$#u', 'i', $this->word);
             }
 
@@ -215,112 +218,124 @@ class English extends Stem
     private function step2()
     {
         // iveness   iviti:   replace by ive
-        if ( ($position = $this->search(array('iveness', 'iviti'))) !== false) {
+        if (($position = $this->search(['iveness', 'iviti'])) !== false) {
             if ($this->inR1($position)) {
                 $this->word = preg_replace('#(iveness|iviti)$#u', 'ive', $this->word);
             }
+
             return true;
         }
 
         // ousli   ousness:   replace by ous
-        if ( ($position = $this->search(array('ousli', 'ousness'))) !== false) {
+        if (($position = $this->search(['ousli', 'ousness'])) !== false) {
             if ($this->inR1($position)) {
                 $this->word = preg_replace('#(ousli|ousness)$#u', 'ous', $this->word);
             }
+
             return true;
         }
 
         // izer   ization:   replace by ize
-        if ( ($position = $this->search(array('izer', 'ization'))) !== false) {
+        if (($position = $this->search(['izer', 'ization'])) !== false) {
             if ($this->inR1($position)) {
                 $this->word = preg_replace('#(izer|ization)$#u', 'ize', $this->word);
             }
+
             return true;
         }
 
         // ational   ation   ator:   replace by ate
-        if ( ($position = $this->search(array('ational', 'ation', 'ator'))) !== false) {
+        if (($position = $this->search(['ational', 'ation', 'ator'])) !== false) {
             if ($this->inR1($position)) {
                 $this->word = preg_replace('#(ational|ation|ator)$#u', 'ate', $this->word);
             }
+
             return true;
         }
 
         // biliti   bli+:   replace by ble
-        if ( ($position = $this->search(array('biliti', 'bli'))) !== false) {
+        if (($position = $this->search(['biliti', 'bli'])) !== false) {
             if ($this->inR1($position)) {
                 $this->word = preg_replace('#(biliti|bli)$#u', 'ble', $this->word);
             }
+
             return true;
         }
 
         // lessli+:   replace by less
-        if ( ($position = $this->search(array('lessli'))) !== false) {
+        if (($position = $this->search(['lessli'])) !== false) {
             if ($this->inR1($position)) {
                 $this->word = preg_replace('#(lessli)$#u', 'less', $this->word);
             }
+
             return true;
         }
 
         // fulness:   replace by ful
-        if ( ($position = $this->search(array('fulness', 'fulli'))) !== false) {
+        if (($position = $this->search(['fulness', 'fulli'])) !== false) {
             if ($this->inR1($position)) {
                 $this->word = preg_replace('#(fulness|fulli)$#u', 'ful', $this->word);
             }
+
             return true;
         }
 
         // tional:   replace by tion
-        if ( ($position = $this->search(array('tional'))) !== false) {
+        if (($position = $this->search(['tional'])) !== false) {
             if ($this->inR1($position)) {
                 $this->word = preg_replace('#(tional)$#u', 'tion', $this->word);
             }
+
             return true;
         }
 
         // alism   aliti   alli:   replace by al
-        if ( ($position = $this->search(array('alism', 'aliti', 'alli'))) !== false) {
+        if (($position = $this->search(['alism', 'aliti', 'alli'])) !== false) {
             if ($this->inR1($position)) {
                 $this->word = preg_replace('#(alism|aliti|alli)$#u', 'al', $this->word);
             }
+
             return true;
         }
 
         // enci:   replace by ence
-        if ( ($position = $this->search(array('enci'))) !== false) {
+        if (($position = $this->search(['enci'])) !== false) {
             if ($this->inR1($position)) {
                 $this->word = preg_replace('#(enci)$#u', 'ence', $this->word);
             }
+
             return true;
         }
 
         // anci:   replace by ance
-        if ( ($position = $this->search(array('anci'))) !== false) {
+        if (($position = $this->search(['anci'])) !== false) {
             if ($this->inR1($position)) {
                 $this->word = preg_replace('#(anci)$#u', 'ance', $this->word);
             }
+
             return true;
         }
 
         // abli:   replace by able
-        if ( ($position = $this->search(array('abli'))) !== false) {
+        if (($position = $this->search(['abli'])) !== false) {
             if ($this->inR1($position)) {
                 $this->word = preg_replace('#(abli)$#u', 'able', $this->word);
             }
+
             return true;
         }
 
         // entli:   replace by ent
-        if ( ($position = $this->search(array('entli'))) !== false) {
+        if (($position = $this->search(['entli'])) !== false) {
             if ($this->inR1($position)) {
                 $this->word = preg_replace('#(entli)$#u', 'ent', $this->word);
             }
+
             return true;
         }
 
         // ogi+:   replace by og if preceded by l
-        if ( ($position = $this->search(array('ogi'))) !== false) {
-
+        if (($position = $this->search(['ogi'])) !== false) {
             if ($this->inR1($position)) {
                 $before = $position - 1;
                 $letter = UTF8::substr($this->word, $before, 1);
@@ -334,11 +349,10 @@ class English extends Stem
         }
 
         // li+:   delete if preceded by a valid li-ending
-        if ( ($position = $this->search(array('li'))) !== false) {
-
+        if (($position = $this->search(['li'])) !== false) {
             if ($this->inR1($position)) {
                 // a letter for you
-                $letter = UTF8::substr($this->word, ($position-1), 1);
+                $letter = UTF8::substr($this->word, ($position - 1), 1);
 
                 if (in_array($letter, self::$liEnding)) {
                     $this->word = UTF8::substr($this->word, 0, $position);
@@ -358,38 +372,44 @@ class English extends Stem
     private function step3()
     {
         // ational+:   replace by ate
-        if ($this->searchIfInR1(array('ational')) !== false) {
+        if ($this->searchIfInR1(['ational']) !== false) {
             $this->word = preg_replace('#(ational)$#u', 'ate', $this->word);
+
             return true;
         }
 
         // tional+:   replace by tion
-        if ($this->searchIfInR1(array('tional')) !== false) {
+        if ($this->searchIfInR1(['tional']) !== false) {
             $this->word = preg_replace('#(tional)$#u', 'tion', $this->word);
+
             return true;
         }
 
         // alize:   replace by al
-        if ($this->searchIfInR1(array('alize')) !== false) {
+        if ($this->searchIfInR1(['alize']) !== false) {
             $this->word = preg_replace('#(alize)$#u', 'al', $this->word);
+
             return true;
         }
 
         // icate   iciti   ical:   replace by ic
-        if ($this->searchIfInR1(array('icate', 'iciti', 'ical')) !== false) {
+        if ($this->searchIfInR1(['icate', 'iciti', 'ical']) !== false) {
             $this->word = preg_replace('#(icate|iciti|ical)$#u', 'ic', $this->word);
+
             return true;
         }
 
         // ful   ness:   delete
-        if ( ($position = $this->searchIfInR1(array('ful', 'ness'))) !== false) {
+        if (($position = $this->searchIfInR1(['ful', 'ness'])) !== false) {
             $this->word = UTF8::substr($this->word, 0, $position);
+
             return true;
         }
 
         // ative*:   delete if in R2
-        if ( (($position = $this->searchIfInR1(array('ative'))) !== false) && ($this->inR2($position)) )  {
+        if ((($position = $this->searchIfInR1(['ative'])) !== false) && ($this->inR2($position))) {
             $this->word = UTF8::substr($this->word, 0, $position);
+
             return true;
         }
 
@@ -404,19 +424,19 @@ class English extends Stem
     {
         //    ement  ance   ence  able ible   ant  ment   ent   ism   ate   iti   ous   ive   ize al  er   ic
         //      delete
-        if ( ($position = $this->search(array(
+        if (($position = $this->search([
             'ance', 'ence', 'ement', 'able', 'ible', 'ant', 'ment', 'ent', 'ism',
-            'ate', 'iti', 'ous', 'ive', 'ize', 'al', 'er', 'ic'))) !== false) {
-
+            'ate', 'iti', 'ous', 'ive', 'ize', 'al', 'er', 'ic', ])) !== false) {
             if ($this->inR2($position)) {
                 $this->word = UTF8::substr($this->word, 0, $position);
             }
+
             return true;
         }
 
         // ion
         //      delete if preceded by s or t
-        if ( ($position = $this->searchIfInR2(array('ion'))) !== false) {
+        if (($position = $this->searchIfInR2(['ion'])) !== false) {
             $before = $position - 1;
             $letter = UTF8::substr($this->word, $before, 1);
 
@@ -438,12 +458,11 @@ class English extends Stem
     {
         // e
         //      delete if in R2, or in R1 and not preceded by a short syllable
-        if ( ($position = $this->search(array('e'))) !== false) {
+        if (($position = $this->search(['e'])) !== false) {
             if ($this->inR2($position)) {
                 $this->word = UTF8::substr($this->word, 0, $position);
-
             } elseif ($this->inR1($position)) {
-                if ( (! $this->searchShortSyllabe(-4, 3)) && (! $this->searchShortSyllabe(-3, 2)) ) {
+                if ((!$this->searchShortSyllabe(-4, 3)) && (!$this->searchShortSyllabe(-3, 2))) {
                     $this->word = UTF8::substr($this->word, 0, $position);
                 }
             }
@@ -453,7 +472,7 @@ class English extends Stem
 
         // l
         //      delete if in R2 and preceded by l
-        if ( ($position = $this->searchIfInR2(array('l'))) !== false) {
+        if (($position = $this->searchIfInR2(['l'])) !== false) {
             $before = $position - 1;
             $letter = UTF8::substr($this->word, $before, 1);
 
@@ -467,21 +486,19 @@ class English extends Stem
         return false;
     }
 
-    private function finish()
+    private function finish(): void
     {
         $this->word = UTF8::str_replace('Y', 'y', $this->word);
     }
 
-    private function exceptionR1()
+    private function exceptionR1(): void
     {
         if (Utf8::strpos($this->word, 'gener') === 0) {
             $this->r1 = UTF8::substr($this->word, 5);
             $this->r1Index = 5;
-
         } elseif (Utf8::strpos($this->word, 'commun') === 0) {
             $this->r1 = UTF8::substr($this->word, 6);
             $this->r1Index = 6;
-
         } elseif (Utf8::strpos($this->word, 'arsen') === 0) {
             $this->r1 = UTF8::substr($this->word, 5);
             $this->r1Index = 5;
@@ -490,31 +507,31 @@ class English extends Stem
 
     /**
      *  1/ Stem certain special words as follows,
-     *  2/ If one of the following is found, leave it invariant,
+     *  2/ If one of the following is found, leave it invariant,.
      */
     private function exception1()
     {
-        $exceptions = array(
-            'skis'   => 'ski',
-            'skies'  => 'sky',
-            'dying'  => 'die',
-            'lying'  => 'lie',
-            'tying'  => 'tie',
-            'idly'   => 'idl',
+        $exceptions = [
+            'skis' => 'ski',
+            'skies' => 'sky',
+            'dying' => 'die',
+            'lying' => 'lie',
+            'tying' => 'tie',
+            'idly' => 'idl',
             'gently' => 'gentl',
-            'ugly'   => 'ugli',
-            'early'  => 'earli',
-            'only'   => 'onli',
+            'ugly' => 'ugli',
+            'early' => 'earli',
+            'only' => 'onli',
             'singly' => 'singl',
             // invariants
-            'sky'    => 'sky',
-            'news'   => 'news',
-            'howe'   => 'howe',
-            'atlas'  => 'atlas',
+            'sky' => 'sky',
+            'news' => 'news',
+            'howe' => 'howe',
+            'atlas' => 'atlas',
             'cosmos' => 'cosmos',
-            'bias'   => 'bias',
-            'andes'  => 'andes'
-        );
+            'bias' => 'bias',
+            'andes' => 'andes',
+        ];
 
         if (isset($exceptions[$this->word])) {
             return $exceptions[$this->word];
@@ -524,20 +541,20 @@ class English extends Stem
     }
 
     /**
-     * Following step 1a, leave the following invariant,
+     * Following step 1a, leave the following invariant,.
      */
     private function exception2()
     {
-        $exceptions = array(
+        $exceptions = [
             'inning' => 'inning',
             'outing' => 'outing',
             'canning' => 'canning',
             'herring' => 'herring',
             'earring' => 'earring',
             'proceed' => 'proceed',
-            'exceed'  => 'exceed',
-            'succeed' => 'succeed'
-        );
+            'exceed' => 'exceed',
+            'succeed' => 'succeed',
+        ];
 
         if (isset($exceptions[$this->word])) {
             return $exceptions[$this->word];
@@ -548,14 +565,15 @@ class English extends Stem
 
     /**
      *  A word is called short if it ends in a short syllable, and if R1 is null.
-     *  Note : R1 not really null, but the word at this state must be smaller than r1 index
+     *  Note : R1 not really null, but the word at this state must be smaller than r1 index.
      *
-     *  @return boolean
+     *  @return bool
      */
     private function isShort()
     {
         $length = UTF8::strlen($this->word);
-        return ( ($this->searchShortSyllabe(-3, 3) || $this->searchShortSyllabe(-2, 2)) && ($length == $this->r1Index) );
+
+        return  ($this->searchShortSyllabe(-3, 3) || $this->searchShortSyllabe(-2, 2)) && ($length == $this->r1Index);
     }
 
     /**
@@ -577,25 +595,25 @@ class English extends Stem
         }
 
         // (a) is just for beginning of the word
-        if ( ($nbLetters == 2) && ($from != 0) ) {
+        if (($nbLetters == 2) && ($from != 0)) {
             return false;
         }
 
         $first = UTF8::substr($this->word, $from, 1);
-        $second = UTF8::substr($this->word, ($from+1), 1);
+        $second = UTF8::substr($this->word, ($from + 1), 1);
 
         if ($nbLetters == 2) {
-            if ( (in_array($first, self::$vowels)) && (!in_array($second, self::$vowels)) ) {
+            if ((in_array($first, self::$vowels)) && (!in_array($second, self::$vowels))) {
                 return true;
             }
         }
 
-        $third = UTF8::substr($this->word, ($from+2), 1);
+        $third = UTF8::substr($this->word, ($from + 2), 1);
 
-        if ( (!in_array($first, self::$vowels)) && (in_array($second, self::$vowels))
-            && (!in_array($third, array_merge(self::$vowels, array('x', 'Y', 'w'))))) {
-                return true;
-            }
+        if ((!in_array($first, self::$vowels)) && (in_array($second, self::$vowels))
+            && (!in_array($third, array_merge(self::$vowels, ['x', 'Y', 'w'])))) {
+            return true;
+        }
 
         return false;
     }

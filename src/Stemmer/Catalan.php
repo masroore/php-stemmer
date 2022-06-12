@@ -2,13 +2,13 @@
 
 namespace Wamania\Snowball\Stemmer;
 
+use Exception;
 use voku\helper\UTF8;
 
 /**
+ * @see   http://snowball.tartarus.org/algorithms/catalan/stemmer.html
  *
- * @link   http://snowball.tartarus.org/algorithms/catalan/stemmer.html
  * @author Orestes Sanchez Benavente <orestes@estotienearreglo.es>
- *
  *
  * Some fine tuning was necessary in this implementation of the original catalan stemmer algorithm in Snowball:
  *
@@ -22,9 +22,8 @@ use voku\helper\UTF8;
  */
 class Catalan extends Stem
 {
-
     /**
-     * All catalan vowels
+     * All catalan vowels.
      */
     protected static $vowels = ['a', 'e', 'i', 'o', 'u', 'á', 'é', 'í', 'ó', 'ú', 'à', 'è', 'ï', 'ò', 'ü'];
 
@@ -43,13 +42,13 @@ class Catalan extends Stem
         'ell', 'esc', 'ets', 'eta', 'ers', 'ina', 'iva', 'ius', 'fer', 'als', 'era', 'ana', 'esa', 'ici', 'íci',
         'ció', 'dor', 'all', 'enc', 'osa', 'ble', 'dís', 'dur', 'ant', 'ats', 'ota', 'ors', 'ora', 'ari', 'uts',
         'uds', 'ent', 'ims', 'ima', 'ita', 'ar', 'és', 'ès', 'et', 'ls', 'ió', 'ot', 'al', 'or', 'il', 'ís', 'ós',
-        'ud', 'ots', 'ó'
+        'ud', 'ots', 'ó',
     ];
 
     protected static $attached_pronoun = [
         'selas', 'selos', '\'hi', '\'ho', '\'ls', '-les', '-nos', '\'ns', 'sela', 'selo', '\'s', '\'l', '-ls', '-la',
         '-li', 'vos', 'nos', '-us', '\'n', '-ns', '\'m', '-me', '-te', '\'t', 'los', 'las', 'les', 'ens', 'se', 'us',
-        '-n', '-m', 'li', 'lo', 'me', 'le', 'la', 'ho', 'hi'
+        '-n', '-m', 'li', 'lo', 'me', 'le', 'la', 'ho', 'hi',
     ];
 
     protected static $verb_suffixes = [
@@ -73,12 +72,12 @@ class Catalan extends Stem
         'ida', 'its', 'ids', 'ase', 'ían', 'ado', 'ido', 'ieu', 'ess', 'ass', 'ías', 'áis', 'ira', 'irà', 'irè', 'sis',
         'sin', 'int', 'isc', 'ïsc', 'ïra', 'ïxo', 'ixo', 'ixa', 'ini', 'itz', 'iïn', 're', 'ie', 'er', 'ia', 'at', 'ut',
         'au', 'ïm', 'ïu', 'és', 'en', 'es', 'em', 'am', 'ïa', 'it', 'ït', 'ía', 'ad', 'ed', 'id', 'an', 'ió', 'ar',
-        'ir', 'as', 'ii', 'io', 'ià', 'ís', 'ïx', 'ix', 'in', 'às', 'iï', 'iïs', 'í'
+        'ir', 'as', 'ii', 'io', 'ià', 'ís', 'ïx', 'ix', 'in', 'às', 'iï', 'iïs', 'í',
     ];
 
     protected static $residual_suffixes = [
         'itz', 'it', 'os', 'eu', 'iu', 'is', 'ir', 'ïn', 'ïs', 'a', 'o', 'á', 'à', 'í', 'ó', 'e', 'é', 'i', 's', 'ì',
-        'ï'
+        'ï',
     ];
 
     /**
@@ -88,7 +87,7 @@ class Catalan extends Stem
     {
         // we do ALL in UTF-8
         if (!UTF8::is_utf8($word)) {
-            throw new \Exception('Word must be in UTF-8');
+            throw new Exception('Word must be in UTF-8');
         }
 
         $this->word = UTF8::strtolower($word);
@@ -117,25 +116,26 @@ class Catalan extends Stem
     }
 
     /**
-     * Step 0: Attached pronoun
+     * Step 0: Attached pronoun.
      *
      * Search for the longest among the following suffixes
      * and delete it in R1.
      */
-
     private function step0()
     {
         if (($position = $this->search(static::$attached_pronoun)) !== false) {
             if ($this->inR1($position)) {
                 $this->word = UTF8::substr($this->word, 0, $position);
+
                 return true;
             }
         }
+
         return false;
     }
 
     /**
-     * Step 1a: Standard suffix
+     * Step 1a: Standard suffix.
      */
     private function step1a()
     {
@@ -148,6 +148,7 @@ class Catalan extends Stem
             if ($this->inR2($position)) {
                 $this->word = UTF8::substr($this->word, 0, $position);
             }
+
             return true;
         }
 
@@ -162,12 +163,13 @@ class Catalan extends Stem
         // atius atives ativa ativitat ativitats ible ibles assa asses assos ent ents íssim íssima íssims íssimes
         // ìssem ìsseu ìssin ims ima imes isme ista ismes istes inia inies íinia ínies ita ites triu trius oses osos
         // ient otes ots
-        // 
+        //
         //      delete if in R1
         if (($position = $this->search(self::$standard_suffix_1a)) !== false) {
             if ($this->inR1($position)) {
                 $this->word = UTF8::substr($this->word, 0, $position);
             }
+
             return true;
         }
 
@@ -175,13 +177,16 @@ class Catalan extends Stem
         // logía logíes logia logies logi logis lógica lógics lógiques
         //      replace with log if in R2
         if (($position = $this->search(
-                ['logía', 'logíes', 'logia', 'logies', 'logis', 'lógica', 'lógics', 'lógiques', 'logi']
-            )) !== false) {
+            ['logía', 'logíes', 'logia', 'logies', 'logis', 'lógica', 'lógics', 'lógiques', 'logi']
+        )) !== false) {
             if ($this->inR2($position)) {
                 $this->word = preg_replace(
-                    '#(logía|logíes|logia|logies|logis|lógica|lógics|lógiques|logi)$#u', 'log', $this->word
+                    '#(logía|logíes|logia|logies|logis|lógica|lógics|lógiques|logi)$#u',
+                    'log',
+                    $this->word
                 );
             }
+
             return true;
         }
 
@@ -192,6 +197,7 @@ class Catalan extends Stem
             if ($this->inR2($position)) {
                 $this->word = preg_replace('#(ics|ica|iques|ic)$#u', 'ic', $this->word);
             }
+
             return true;
         }
 
@@ -202,6 +208,7 @@ class Catalan extends Stem
             if ($this->inR1($position)) {
                 $this->word = preg_replace('#(quíssima|quíssims|quíssimes|quíssim)$#u', 'c', $this->word);
             }
+
             return true;
         }
 
@@ -243,6 +250,7 @@ class Catalan extends Stem
             if ($this->inR1($position)) {
                 $this->word = UTF8::substr($this->word, 0, $position);
             }
+
             return true;
         }
 
@@ -253,8 +261,10 @@ class Catalan extends Stem
             if ($this->inR2($position)) {
                 $this->word = UTF8::substr($this->word, 0, $position);
             }
+
             return true;
         }
+
         return false;
     }
 
@@ -272,6 +282,7 @@ class Catalan extends Stem
             if ($this->inR1($position)) {
                 $this->word = UTF8::substr($this->word, 0, $position);
             }
+
             return true;
         }
 
@@ -282,6 +293,7 @@ class Catalan extends Stem
             if ($this->inR1($position)) {
                 $this->word = preg_replace('#(iqu)$#u', 'ic', $this->word);
             }
+
             return true;
         }
 
@@ -290,9 +302,9 @@ class Catalan extends Stem
 
     /**
      * And finally:
-     * Remove accents and l aggeminades
+     * Remove accents and l aggeminades.
      */
-    private function finish()
+    private function finish(): void
     {
         $this->word = UTF8::str_replace(
             ['á', 'é', 'í', 'ó', 'ú', 'à', 'è', 'ì', 'ò', 'ï', 'ü', '·'],
@@ -300,5 +312,4 @@ class Catalan extends Stem
             $this->word
         );
     }
-
 }

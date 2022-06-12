@@ -2,20 +2,20 @@
 
 namespace Wamania\Snowball\Stemmer;
 
+use Exception;
 use voku\helper\UTF8;
 
 /**
+ * @see http://snowball.tartarus.org/algorithms/swedish/stemmer.html
  *
- * @link http://snowball.tartarus.org/algorithms/swedish/stemmer.html
  * @author wamania
- *
  */
 class Swedish extends Stem
 {
     /**
-     * All swedish vowels
+     * All swedish vowels.
      */
-    protected static $vowels = array('a', 'e', 'i', 'o', 'u', 'y', 'ä', 'å', 'ö');
+    protected static $vowels = ['a', 'e', 'i', 'o', 'u', 'y', 'ä', 'å', 'ö'];
 
     /**
      * {@inheritdoc}
@@ -24,7 +24,7 @@ class Swedish extends Stem
     {
         // we do ALL in UTF-8
         if (!UTF8::is_utf8($word)) {
-            throw new \Exception('Word must be in UTF-8');
+            throw new Exception('Word must be in UTF-8');
         }
 
         $this->word = UTF8::strtolower($word);
@@ -48,15 +48,15 @@ class Swedish extends Stem
 
     /**
      * Define a valid s-ending as one of
-     * b   c   d   f   g   h   j   k   l   m   n   o   p   r   t   v   y
+     * b   c   d   f   g   h   j   k   l   m   n   o   p   r   t   v   y.
      *
-     * @param string $ending
-     * @return boolean
+     * @return bool
      */
     private function hasValidSEnding($word)
     {
         $lastLetter = UTF8::substr($word, -1, 1);
-        return in_array($lastLetter, array('b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'r', 't', 'v', 'y'));
+
+        return in_array($lastLetter, ['b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'r', 't', 'v', 'y']);
     }
 
     /**
@@ -69,18 +69,19 @@ class Swedish extends Stem
         // ern   ar   er   heter   or   as   arnas   ernas   ornas   es   ades   andes   ens   arens   hetens
         // erns   at   andet   het   ast
         //      delete
-        if ( ($position = $this->searchIfInR1(array(
+        if (($position = $this->searchIfInR1([
             'heterna', 'hetens', 'ornas', 'andes', 'arnas', 'heter', 'ernas', 'anden', 'heten', 'andet', 'arens',
             'orna', 'arna', 'erna', 'aren', 'ande', 'ades', 'arne', 'erns', 'aste', 'ade', 'ern', 'het',
-            'ast', 'are', 'ens', 'or', 'es', 'ad', 'en', 'at', 'ar', 'as', 'er', 'a', 'e'
-        ))) !== false) {
+            'ast', 'are', 'ens', 'or', 'es', 'ad', 'en', 'at', 'ar', 'as', 'er', 'a', 'e',
+        ])) !== false) {
             $this->word = UTF8::substr($this->word, 0, $position);
+
             return true;
         }
 
         //  s
         //      delete if preceded by a valid s-ending
-        if ( ($position = $this->searchIfInR1(array('s'))) !== false) {
+        if (($position = $this->searchIfInR1(['s'])) !== false) {
             $word = UTF8::substr($this->word, 0, $position);
             if ($this->hasValidSEnding($word)) {
                 $this->word = $word;
@@ -92,10 +93,10 @@ class Swedish extends Stem
      * Step 2
      * Search for one of the following suffixes in R1, and if found delete the last letter.
      */
-    private function step2()
+    private function step2(): void
     {
         // dd   gd   nn   dt   gt   kt   tt
-        if ($this->searchIfInR1(array('dd', 'gd', 'nn', 'dt', 'gt', 'kt', 'tt')) !== false) {
+        if ($this->searchIfInR1(['dd', 'gd', 'nn', 'dt', 'gt', 'kt', 'tt']) !== false) {
             $this->word = UTF8::substr($this->word, 0, -1);
         }
     }
@@ -108,22 +109,25 @@ class Swedish extends Stem
     {
         // lig   ig   els
         //      delete
-        if ( ($position = $this->searchIfInR1(array('lig', 'ig', 'els'))) !== false) {
+        if (($position = $this->searchIfInR1(['lig', 'ig', 'els'])) !== false) {
             $this->word = UTF8::substr($this->word, 0, $position);
+
             return true;
         }
 
         // löst
         //      replace with lös
-        if ( ($this->searchIfInR1(array('löst'))) !== false) {
+        if (($this->searchIfInR1(['löst'])) !== false) {
             $this->word = UTF8::substr($this->word, 0, -1);
+
             return true;
         }
 
         // fullt
         //      replace with full
-        if ( ($this->searchIfInR1(array('fullt'))) !== false) {
+        if (($this->searchIfInR1(['fullt'])) !== false) {
             $this->word = UTF8::substr($this->word, 0, -1);
+
             return true;
         }
     }

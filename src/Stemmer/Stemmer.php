@@ -1,4 +1,5 @@
 <?php
+
 namespace Wamania\Snowball\Stemmer;
 
 /**
@@ -7,13 +8,11 @@ namespace Wamania\Snowball\Stemmer;
 interface Stemmer
 {
     /**
-     * Main function to get the STEM of a word
+     * Main function to get the STEM of a word.
      *
      * @param string $word A valid UTF-8 word
      *
      * @return string
-     *
-     * @throws \Exception
      */
     public function stem($word);
 }

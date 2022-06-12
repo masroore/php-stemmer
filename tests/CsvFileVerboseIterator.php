@@ -1,15 +1,16 @@
 <?php
+
 namespace Wamania\Snowball\Tests;
 
 class CsvFileVerboseIterator extends CsvFileIterator
 {
-    public function rewind()
+    public function rewind(): void
     {
         parent::rewind();
         $this->_updateKey($this->current());
     }
 
-    public function next()
+    public function next(): void
     {
         parent::next();
         if ($this->valid()) {
@@ -17,11 +18,11 @@ class CsvFileVerboseIterator extends CsvFileIterator
         }
     }
 
-    protected function _updateKey($value)
+    protected function _updateKey($value): void
     {
-        if ($value && sizeof($value)) {
+        if ($value && count($value)) {
             $this->key = $value[0];
-        } elseif (sizeof($this->current)) {
+        } elseif (count($this->current)) {
             $this->key = $this->current[0];
         }
     }

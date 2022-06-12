@@ -2,54 +2,54 @@
 
 namespace Wamania\Snowball\Stemmer;
 
+use Exception;
 use voku\helper\UTF8;
 
 /**
+ * @see http://snowball.tartarus.org/algorithms/russian/stemmer.html
  *
- * @link http://snowball.tartarus.org/algorithms/russian/stemmer.html
  * @author wamania
- *
  */
 class Russian extends Stem
 {
     /**
-     * All russian vowels
+     * All russian vowels.
      */
-    protected static $vowels = array('а', 'е', 'и', 'о', 'у', 'ы', 'э', 'ю', 'я');
+    protected static $vowels = ['а', 'е', 'и', 'о', 'у', 'ы', 'э', 'ю', 'я'];
 
-    protected static $perfectiveGerund = array(
-        array('вшись', 'вши', 'в'),
-        array('ывшись', 'ившись', 'ывши', 'ивши', 'ив', 'ыв')
-    );
+    protected static $perfectiveGerund = [
+        ['вшись', 'вши', 'в'],
+        ['ывшись', 'ившись', 'ывши', 'ивши', 'ив', 'ыв'],
+    ];
 
-    protected static $adjective = array(
+    protected static $adjective = [
         'ыми', 'ими', 'ему', 'ому', 'его', 'ого', 'ее', 'ие', 'ые', 'ое', 'ей', 'ий',
-        'ый', 'ой', 'ем', 'им', 'ым','ом','их', 'ых', 'ую', 'юю', 'ая', 'яя', 'ою', 'ею'
-    );
+        'ый', 'ой', 'ем', 'им', 'ым', 'ом', 'их', 'ых', 'ую', 'юю', 'ая', 'яя', 'ою', 'ею',
+    ];
 
-    protected static $participle = array(
-        array('ем', 'нн', 'вш', 'ющ', 'щ'),
-        array('ивш', 'ывш', 'ующ')
-    );
+    protected static $participle = [
+        ['ем', 'нн', 'вш', 'ющ', 'щ'],
+        ['ивш', 'ывш', 'ующ'],
+    ];
 
-    protected static $reflexive = array('ся', 'сь');
+    protected static $reflexive = ['ся', 'сь'];
 
-    protected static $verb = array(
-        array('ешь', 'нно', 'ете', 'йте', 'ла', 'на', 'ли', 'й', 'л', 'ем', 'н', 'ло', 'но', 'ет', 'ют', 'ны', 'ть'),
-        array(
-            'уйте', 'ило', 'ыло', 'ено','ила', 'ыла', 'ена', 'ейте', 'ены', 'ить', 'ыть', 'ишь', 'ите', 'или', 'ыли',
-            'ует', 'уют', 'ей', 'уй', 'ил', 'ыл', 'им', 'ым', 'ен', 'ят', 'ит', 'ыт', 'ую', 'ю'
-        )
-    );
+    protected static $verb = [
+        ['ешь', 'нно', 'ете', 'йте', 'ла', 'на', 'ли', 'й', 'л', 'ем', 'н', 'ло', 'но', 'ет', 'ют', 'ны', 'ть'],
+        [
+            'уйте', 'ило', 'ыло', 'ено', 'ила', 'ыла', 'ена', 'ейте', 'ены', 'ить', 'ыть', 'ишь', 'ите', 'или', 'ыли',
+            'ует', 'уют', 'ей', 'уй', 'ил', 'ыл', 'им', 'ым', 'ен', 'ят', 'ит', 'ыт', 'ую', 'ю',
+        ],
+    ];
 
-    protected static $noun = array(
+    protected static $noun = [
         'иями', 'ями', 'ами', 'ией', 'иям', 'ием', 'иях', 'ев', 'ов', 'ие', 'ье', 'еи', 'ии', 'ей', 'ой', 'ий', 'ям',
-        'ем', 'ам', 'ом', 'ах', 'ях', 'ию', 'ью', 'ия', 'ья', 'я', 'а', 'е', 'ы', 'ь', 'и', 'о', 'у', 'й', 'ю'
-    );
+        'ем', 'ам', 'ом', 'ах', 'ях', 'ию', 'ью', 'ия', 'ья', 'я', 'а', 'е', 'ы', 'ь', 'и', 'о', 'у', 'й', 'ю',
+    ];
 
-    protected static $superlative = array('ейше', 'ейш');
+    protected static $superlative = ['ейше', 'ейш'];
 
-    protected static $derivational = array('ость', 'ост');
+    protected static $derivational = ['ость', 'ост'];
 
     /**
      * {@inheritdoc}
@@ -58,7 +58,7 @@ class Russian extends Stem
     {
         // we do ALL in UTF-8
         if (!UTF8::is_utf8($word)) {
-            throw new \Exception('Word must be in UTF-8');
+            throw new Exception('Word must be in UTF-8');
         }
 
         $this->word = UTF8::strtolower($word);
@@ -86,23 +86,25 @@ class Russian extends Stem
     {
         // Search for a PERFECTIVE GERUND ending.
         // group 1
-        if ( ($position = $this->searchIfInRv(self::$perfectiveGerund[0])) !== false) {
-            if ( ($this->inRv($position)) && ($this->checkGroup1($position)) ) {
+        if (($position = $this->searchIfInRv(self::$perfectiveGerund[0])) !== false) {
+            if (($this->inRv($position)) && ($this->checkGroup1($position))) {
                 $this->word = UTF8::substr($this->word, 0, $position);
+
                 return true;
             }
         }
 
         // group 2
-        if ( ($position = $this->searchIfInRv(self::$perfectiveGerund[1])) !== false) {
+        if (($position = $this->searchIfInRv(self::$perfectiveGerund[1])) !== false) {
             if ($this->inRv($position)) {
                 $this->word = UTF8::substr($this->word, 0, $position);
+
                 return true;
             }
         }
 
         // Otherwise try and remove a REFLEXIVE ending
-        if ( ($position = $this->searchIfInRv(self::$reflexive)) !== false) {
+        if (($position = $this->searchIfInRv(self::$reflexive)) !== false) {
             if ($this->inRv($position)) {
                 $this->word = UTF8::substr($this->word, 0, $position);
             }
@@ -110,20 +112,22 @@ class Russian extends Stem
 
         // then search in turn for (1) an ADJECTIVAL, (2) a VERB or (3) a NOUN ending.
         // As soon as one of the endings (1) to (3) is found remove it, and terminate step 1.
-        if ( ($position = $this->searchIfInRv(self::$adjective)) !== false) {
+        if (($position = $this->searchIfInRv(self::$adjective)) !== false) {
             if ($this->inRv($position)) {
                 $this->word = UTF8::substr($this->word, 0, $position);
 
-                if ( ($position2 = $this->search(self::$participle[0])) !== false) {
-                    if ( ($this->inRv($position2)) && ($this->checkGroup1($position2)) ) {
+                if (($position2 = $this->search(self::$participle[0])) !== false) {
+                    if (($this->inRv($position2)) && ($this->checkGroup1($position2))) {
                         $this->word = UTF8::substr($this->word, 0, $position2);
+
                         return true;
                     }
                 }
 
-                if ( ($position2 = $this->search(self::$participle[1])) !== false) {
+                if (($position2 = $this->search(self::$participle[1])) !== false) {
                     if ($this->inRv($position2)) {
                         $this->word = UTF8::substr($this->word, 0, $position2);
+
                         return true;
                     }
                 }
@@ -132,23 +136,26 @@ class Russian extends Stem
             }
         }
 
-        if ( ($position = $this->searchIfInRv(self::$verb[0])) !== false) {
-            if ( ($this->inRv($position)) && ($this->checkGroup1($position)) ) {
+        if (($position = $this->searchIfInRv(self::$verb[0])) !== false) {
+            if (($this->inRv($position)) && ($this->checkGroup1($position))) {
                 $this->word = UTF8::substr($this->word, 0, $position);
+
                 return true;
             }
         }
 
-        if ( ($position = $this->searchIfInRv(self::$verb[1])) !== false) {
+        if (($position = $this->searchIfInRv(self::$verb[1])) !== false) {
             if ($this->inRv($position)) {
                 $this->word = UTF8::substr($this->word, 0, $position);
+
                 return true;
             }
         }
 
-        if ( ($position = $this->searchIfInRv(self::$noun)) !== false) {
+        if (($position = $this->searchIfInRv(self::$noun)) !== false) {
             if ($this->inRv($position)) {
                 $this->word = UTF8::substr($this->word, 0, $position);
+
                 return true;
             }
         }
@@ -161,12 +168,14 @@ class Russian extends Stem
      */
     private function step2()
     {
-        if ( ($position = $this->searchIfInRv(array('и'))) !== false) {
+        if (($position = $this->searchIfInRv(['и'])) !== false) {
             if ($this->inRv($position)) {
                 $this->word = UTF8::substr($this->word, 0, $position);
+
                 return true;
             }
         }
+
         return false;
     }
 
@@ -176,9 +185,10 @@ class Russian extends Stem
      */
     private function step3()
     {
-        if ( ($position = $this->searchIfInRv(self::$derivational)) !== false) {
+        if (($position = $this->searchIfInRv(self::$derivational)) !== false) {
             if ($this->inR2($position)) {
                 $this->word = UTF8::substr($this->word, 0, $position);
+
                 return true;
             }
         }
@@ -191,19 +201,21 @@ class Russian extends Stem
     private function step4()
     {
         // (2) if the word ends with a SUPERLATIVE ending, remove it
-        if ( ($position = $this->searchIfInRv(self::$superlative)) !== false) {
+        if (($position = $this->searchIfInRv(self::$superlative)) !== false) {
             $this->word = UTF8::substr($this->word, 0, $position);
         }
 
         // (1) Undouble н (n)
-        if ( ($position = $this->searchIfInRv(array('нн'))) !== false) {
-            $this->word = UTF8::substr($this->word, 0, ($position+1));
+        if (($position = $this->searchIfInRv(['нн'])) !== false) {
+            $this->word = UTF8::substr($this->word, 0, ($position + 1));
+
             return true;
         }
 
         // (3) if the word ends ь (') (soft sign) remove it
-        if ( ($position = $this->searchIfInRv(array('ь'))) !== false) {
+        if (($position = $this->searchIfInRv(['ь'])) !== false) {
             $this->word = UTF8::substr($this->word, 0, $position);
+
             return true;
         }
     }
@@ -218,11 +230,12 @@ class Russian extends Stem
         $this->rv = '';
         $this->rvIndex = $length;
 
-        for ($i=0; $i<$length; $i++) {
+        for ($i = 0; $i < $length; ++$i) {
             $letter = UTF8::substr($this->word, $i, 1);
             if (in_array($letter, self::$vowels)) {
-                $this->rv = UTF8::substr($this->word, ($i+1));
+                $this->rv = UTF8::substr($this->word, ($i + 1));
                 $this->rvIndex = $i + 1;
+
                 return true;
             }
         }
@@ -231,14 +244,15 @@ class Russian extends Stem
     }
 
     /**
-     * group 1 endings must follow а (a) or я (ia)
+     * group 1 endings must follow а (a) or я (ia).
      *
-     * @param integer $position
-     * @return boolean
+     * @param int $position
+     *
+     * @return bool
      */
     private function checkGroup1($position)
     {
-        if (! $this->inRv(($position-1))) {
+        if (!$this->inRv(($position - 1))) {
             return false;
         }
 
@@ -247,6 +261,7 @@ class Russian extends Stem
         if ($letter == 'а' || $letter == 'я') {
             return true;
         }
+
         return false;
     }
 }

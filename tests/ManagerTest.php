@@ -7,10 +7,10 @@ use Wamania\Snowball\StemmerManager;
 
 class ManagerTest extends TestCase
 {
-    public function testManager()
+    public function testManager(): void
     {
         $stemmerManager = new StemmerManager();
 
-        $this->assertEquals('anticonstitutionnel', $stemmerManager->stem('anticonstitutionnelement', 'fr'));
+        self::assertEquals('anticonstitutionnel', $stemmerManager->stem('anticonstitutionnelement', 'fr'));
     }
 }

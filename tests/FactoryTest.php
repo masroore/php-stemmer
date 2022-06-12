@@ -7,7 +7,7 @@ use Wamania\Snowball\StemmerFactory;
 
 class FactoryTest extends TestCase
 {
-    public function testFactory()
+    public function testFactory(): void
     {
         $isoCodes = [
             'ca' => 'Wamania\\Snowball\\Stemmer\\Catalan',
@@ -58,7 +58,7 @@ class FactoryTest extends TestCase
         foreach ($isoCodes as $isoCode => $classname) {
             $stemmer = StemmerFactory::create($isoCode);
 
-            $this->assertTrue($stemmer instanceof $classname);
+            self::assertInstanceOf($classname, $stemmer);
         }
     }
 }

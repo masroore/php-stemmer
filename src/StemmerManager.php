@@ -12,9 +12,6 @@ class StemmerManager
         $this->stemmers = [];
     }
 
-    /**
-     * @throws NotFoundException
-     */
     public function stem(string $word, string $isoCode): string
     {
         if (!isset($this->stemmers[$isoCode])) {
