@@ -181,10 +181,10 @@ abstract class Stem implements Stemmer
         $second = UTF8::substr($this->word, 1, 1);
 
         // If the second letter is a consonant, RV is the region after the next following vowel,
-        if (!in_array($second, static::$vowels)) {
+        if (!in_array($second, static::$vowels, true)) {
             for ($i = 2; $i < $length; ++$i) {
                 $letter = UTF8::substr($this->word, $i, 1);
-                if (in_array($letter, static::$vowels)) {
+                if (in_array($letter, static::$vowels, true)) {
                     $this->rvIndex = $i + 1;
                     $this->rv = UTF8::substr($this->word, ($i + 1));
 
@@ -194,10 +194,10 @@ abstract class Stem implements Stemmer
         }
 
         // or if the first two letters are vowels, RV is the region after the next consonant,
-        if ((in_array($first, static::$vowels)) && (in_array($second, static::$vowels))) {
+        if (in_array($first, static::$vowels, true) && in_array($second, static::$vowels, true)) {
             for ($i = 2; $i < $length; ++$i) {
                 $letter = UTF8::substr($this->word, $i, 1);
-                if (!in_array($letter, static::$vowels)) {
+                if (!in_array($letter, static::$vowels, true)) {
                     $this->rvIndex = $i + 1;
                     $this->rv = UTF8::substr($this->word, ($i + 1));
 
@@ -207,11 +207,13 @@ abstract class Stem implements Stemmer
         }
 
         // and otherwise (consonant-vowel case) RV is the region after the third letter.
-        if ((!in_array($first, static::$vowels)) && (in_array($second, static::$vowels))) {
+        if (!in_array($first, static::$vowels, true) && in_array($second, static::$vowels, true)) {
             $this->rv = UTF8::substr($this->word, 3);
             $this->rvIndex = 3;
 
             return true;
         }
+
+        return false;
     }
 }
