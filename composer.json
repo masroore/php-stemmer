@@ -1,29 +1,56 @@
 {
-	"name": "wamania/php-stemmer",
-	"description": "Native PHP Stemmer",
-	"keywords": ["stemmer", "porter", "php"],
-	"license": "MIT",
-	"authors": [
-		{
-			"name": "Wamania",
-			"homepage": "http://wamania.com"
-		}
-	],
-	"require": {
-		"php": ">=7.3",
-		"voku/portable-utf8": "^5.4"
-	},
-	"require-dev":{
-		"phpunit/phpunit": "^9.0"
-	},
-	"autoload": {
-		"psr-4": {
-			"Wamania\\Snowball\\": "src/"
-		}
-	},
-	"autoload-dev": {
-		"psr-4": {
-			"Wamania\\Snowball\\Tests\\": "test/"
-		}
-	}
+  "name": "masroore/php-stemmer",
+  "description": "Native PHP Stemmer",
+  "keywords": [
+    "stemmer",
+    "porter",
+    "php"
+  ],
+  "homepage": "https://github.com/masroore/php-stemmer",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Wamania",
+      "homepage": "http://wamania.com"
+    },
+    {
+      "name": "Masroor Ehsan",
+      "homepage": "https://github.com/masroore"
+    }
+  ],
+  "require": {
+    "php": "^8.0 || ^8.1",
+    "voku/portable-utf8": "^6.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Wamania\\Snowball\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Wamania\\Snowball\\Tests\\": "tests/"
+    }
+  },
+  "scripts": {
+    "analyse": "vendor/bin/phpstan analyse",
+    "test": "vendor/bin/phpunit tests",
+    "test-coverage": "vendor/bin/pest --coverage",
+    "fix": "vendor/bin/php-cs-fixer fix --allow-risky=yes"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^9.5",
+    "friendsofphp/php-cs-fixer": "^3.8",
+    "nunomaduro/larastan": "^2.1",
+    "pestphp/pest": "^1.21",
+    "phpstan/extension-installer": "^1.1",
+    "phpstan/phpstan-deprecation-rules": "^1.0",
+    "phpstan/phpstan-phpunit": "^1.1"
+  },
+  "config": {
+    "allow-plugins": {
+      "pestphp/pest-plugin": true,
+      "phpstan/extension-installer": true
+    }
+  }
 }

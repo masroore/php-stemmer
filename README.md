@@ -30,25 +30,17 @@ Available :
 Installation
 ------------
 
-For PHP5, use 1.3
-```
-composer require wamania/php-stemmer "^1.3"
-```
+> **Requires [PHP 8.0+](https://php.net/releases/)**
 
-For PHP7 use 2.x (branch 2.x is backward compatible with 1.x)
-```
-composer require wamania/php-stemmer "^2.0"
-```
+You can install the package via composer:
 
-For PHP^7.3 and PHP^8.0 use 3.x (backward compatible, but phpunit^9 don't work with php < 7.3)
-```
-composer require wamania/php-stemmer "^3.0"
+```bash
+composer require wamania/php-stemmer
 ```
 
 Usage
 -----
 
-For 2.x, you should use the factory
 ```php
 use Wamania\Snowball\StemmerFactory;
 
@@ -67,13 +59,3 @@ use Wamania\Snowball\StemmerManager;
 $manager = new StemmerManager();
 $stem = $manager->stem('automóvil', 'es');
 ```
-
-In 1.3, you must instantiate manually
-
-```php
-use Wamania\Snowball\French;
-
-$stemmer = new French();
-$stem = $stemmer->stem('anticonstitutionnellement');
-```
-
