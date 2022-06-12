@@ -223,7 +223,7 @@ class Russian extends Stem
     /**
      *  In any word, RV is the region after the first vowel, or the end of the word if it contains no vowel.
      */
-    protected function rv()
+    protected function rv(): bool
     {
         $length = UTF8::strlen($this->word);
 

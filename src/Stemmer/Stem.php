@@ -38,7 +38,7 @@ abstract class Stem implements Stemmer
     /**
      * R1 value.
      */
-    protected int $r1;
+    protected string $r1;
 
     /**
      * R1 index (based on the beginning of the word).
@@ -48,7 +48,7 @@ abstract class Stem implements Stemmer
     /**
      * R2 value.
      */
-    protected int $r2;
+    protected string $r2;
 
     /**
      * R2 index (based on the beginning of the word).

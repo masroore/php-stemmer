@@ -67,10 +67,10 @@ class French extends Stem
      *  Assume the word is in lower case.
      *  Then put into upper case u or i preceded and followed by a vowel, and y preceded or followed by a vowel.
      *  u after q is also put into upper case. For example,
-     *      jouer 		-> 		joUer
-     *      ennuie 		-> 		ennuIe
-     *      yeux 		-> 		Yeux
-     *      quand 		-> 		qUand.
+     *      jouer        ->        joUer
+     *      ennuie        ->        ennuIe
+     *      yeux        ->        Yeux
+     *      quand        ->        qUand.
      */
     private function step0(): void
     {
@@ -87,7 +87,7 @@ class French extends Stem
      *
      * @return int Next step number
      */
-    private function step1()
+    private function step1(): int
     {
         // ance   iqUe   isme   able   iste   eux   ances   iqUes   ismes   ables   istes
         //     delete if in R2
@@ -410,7 +410,7 @@ class French extends Stem
     /**
      * Step 4: Residual suffix.
      */
-    private function step4()
+    private function step4(): bool
     {
         // If the word ends s, not preceded by a, i, o, u, è or s, delete it.
         if (preg_match('#[^aiouès]s$#', $this->word)) {
@@ -494,7 +494,7 @@ class French extends Stem
      *  or the end of the word if these positions cannot be found.
      *  (Exceptionally, par, col or tap, at the begining of a word is also taken to define RV as the region to their right.).
      */
-    protected function rv()
+    protected function rv(): bool
     {
         $length = UTF8::strlen($this->word);
 
