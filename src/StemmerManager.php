@@ -1,11 +1,12 @@
 <?php
 
-namespace Wamania\Snowball;
+declare(strict_types=1);
+
+namespace Kaiju\Snowball;
 
 class StemmerManager
 {
-    /** @var array */
-    private $stemmers;
+    private array $stemmers;
 
     public function __construct()
     {

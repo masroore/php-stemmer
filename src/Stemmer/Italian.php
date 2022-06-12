@@ -1,6 +1,6 @@
 <?php
 
-namespace Wamania\Snowball\Stemmer;
+namespace Kaiju\Snowball\Stemmer;
 
 use Exception;
 use voku\helper\UTF8;
@@ -15,12 +15,12 @@ class Italian extends Stem
     /**
      * All Italian vowels.
      */
-    protected static $vowels = ['a', 'e', 'i', 'o', 'u', 'à', 'è', 'ì', 'ò', 'ù'];
+    protected static array $vowels = ['a', 'e', 'i', 'o', 'u', 'à', 'è', 'ì', 'ò', 'ù'];
 
     /**
      * {@inheritdoc}
      */
-    public function stem($word)
+    public function stem(string $word): string
     {
         // we do ALL in UTF-8
         if (!UTF8::is_utf8($word)) {

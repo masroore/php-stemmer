@@ -1,6 +1,6 @@
 <?php
 
-namespace Wamania\Snowball\Tests;
+namespace Kaiju\Snowball\Tests;
 
 class CsvFileVerboseIterator extends CsvFileIterator
 {

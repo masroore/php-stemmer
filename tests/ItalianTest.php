@@ -1,9 +1,9 @@
 <?php
 
-namespace Wamania\Snowball\Tests;
+namespace Kaiju\Snowball\Tests;
 
+use Kaiju\Snowball\Stemmer\Italian;
 use PHPUnit\Framework\TestCase;
-use Wamania\Snowball\Stemmer\Italian;
 
 class ItalianTest extends TestCase
 {
@@ -21,6 +21,6 @@ class ItalianTest extends TestCase
 
     public function load()
     {
-        return new CsvFileIterator('test/files/it.txt');
+        return new CsvFileIterator('tests/files/it.txt');
     }
 }

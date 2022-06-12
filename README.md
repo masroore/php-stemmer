@@ -11,7 +11,8 @@ Accept only UTF-8
 
 Languages
 ------------
-Available : 
+Available :
+
 - Catalan (by Orestes Sanchez Benavente orestes@estotienearreglo.es)
 - Danish
 - Dutch
@@ -35,14 +36,14 @@ Installation
 You can install the package via composer:
 
 ```bash
-composer require wamania/php-stemmer
+composer require masroore/php-stemmer
 ```
 
 Usage
 -----
 
 ```php
-use Wamania\Snowball\StemmerFactory;
+use Kaiju\Snowball\StemmerFactory;
 
 // use ISO_639 (2 or 3 letters) or language name in english
 $stemmer = StemmerFactory::create('fr');
@@ -53,8 +54,9 @@ $stem = $stemmer->stem('automóvil');
 ```
 
 Or the manager
+
 ```php
-use Wamania\Snowball\StemmerManager;
+use Kaiju\Snowball\StemmerManager;
 
 $manager = new StemmerManager();
 $stem = $manager->stem('automóvil', 'es');

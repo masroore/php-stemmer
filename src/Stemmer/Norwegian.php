@@ -1,6 +1,6 @@
 <?php
 
-namespace Wamania\Snowball\Stemmer;
+namespace Kaiju\Snowball\Stemmer;
 
 use Exception;
 use voku\helper\UTF8;
@@ -15,12 +15,12 @@ class Norwegian extends Stem
     /**
      * All norwegian vowels.
      */
-    protected static $vowels = ['a', 'e', 'i', 'o', 'u', 'y', 'æ', 'å', 'ø'];
+    protected static array $vowels = ['a', 'e', 'i', 'o', 'u', 'y', 'æ', 'å', 'ø'];
 
     /**
      * {@inheritdoc}
      */
-    public function stem($word)
+    public function stem(string $word): string
     {
         // we do ALL in UTF-8
         if (!UTF8::is_utf8($word)) {

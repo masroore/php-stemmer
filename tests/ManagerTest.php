@@ -1,9 +1,9 @@
 <?php
 
-namespace Wamania\Snowball\Tests;
+namespace Kaiju\Snowball\Tests;
 
+use Kaiju\Snowball\StemmerManager;
 use PHPUnit\Framework\TestCase;
-use Wamania\Snowball\StemmerManager;
 
 class ManagerTest extends TestCase
 {

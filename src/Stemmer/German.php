@@ -1,6 +1,6 @@
 <?php
 
-namespace Wamania\Snowball\Stemmer;
+namespace Kaiju\Snowball\Stemmer;
 
 use Exception;
 use voku\helper\UTF8;
@@ -15,7 +15,7 @@ class German extends Stem
     /**
      * All German vowels.
      */
-    protected static $vowels = ['a', 'e', 'i', 'o', 'u', 'y', 'ä', 'ö', 'ü'];
+    protected static array $vowels = ['a', 'e', 'i', 'o', 'u', 'y', 'ä', 'ö', 'ü'];
 
     protected static $sEndings = ['b', 'd', 'f', 'g', 'h', 'k', 'l', 'm', 'n', 'r', 't'];
 
@@ -24,7 +24,7 @@ class German extends Stem
     /**
      * {@inheritdoc}
      */
-    public function stem($word)
+    public function stem(string $word): string
     {
         // we do ALL in UTF-8
         if (!UTF8::is_utf8($word)) {

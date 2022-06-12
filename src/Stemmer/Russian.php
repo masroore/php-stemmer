@@ -1,6 +1,6 @@
 <?php
 
-namespace Wamania\Snowball\Stemmer;
+namespace Kaiju\Snowball\Stemmer;
 
 use Exception;
 use voku\helper\UTF8;
@@ -15,7 +15,7 @@ class Russian extends Stem
     /**
      * All russian vowels.
      */
-    protected static $vowels = ['а', 'е', 'и', 'о', 'у', 'ы', 'э', 'ю', 'я'];
+    protected static array $vowels = ['а', 'е', 'и', 'о', 'у', 'ы', 'э', 'ю', 'я'];
 
     protected static $perfectiveGerund = [
         ['вшись', 'вши', 'в'],
@@ -54,7 +54,7 @@ class Russian extends Stem
     /**
      * {@inheritdoc}
      */
-    public function stem($word)
+    public function stem(string $word): string
     {
         // we do ALL in UTF-8
         if (!UTF8::is_utf8($word)) {

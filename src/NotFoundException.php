@@ -1,6 +1,6 @@
 <?php
 
-namespace Wamania\Snowball;
+namespace Kaiju\Snowball;
 
 use Exception;
 

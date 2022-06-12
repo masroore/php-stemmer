@@ -1,23 +1,25 @@
 <?php
 
-namespace Wamania\Snowball;
+declare(strict_types=1);
 
+namespace Kaiju\Snowball;
+
+use Kaiju\Snowball\Stemmer\Catalan;
+use Kaiju\Snowball\Stemmer\Danish;
+use Kaiju\Snowball\Stemmer\Dutch;
+use Kaiju\Snowball\Stemmer\English;
+use Kaiju\Snowball\Stemmer\Finnish;
+use Kaiju\Snowball\Stemmer\French;
+use Kaiju\Snowball\Stemmer\German;
+use Kaiju\Snowball\Stemmer\Italian;
+use Kaiju\Snowball\Stemmer\Norwegian;
+use Kaiju\Snowball\Stemmer\Portuguese;
+use Kaiju\Snowball\Stemmer\Romanian;
+use Kaiju\Snowball\Stemmer\Russian;
+use Kaiju\Snowball\Stemmer\Spanish;
+use Kaiju\Snowball\Stemmer\Stemmer;
+use Kaiju\Snowball\Stemmer\Swedish;
 use voku\helper\UTF8;
-use Wamania\Snowball\Stemmer\Catalan;
-use Wamania\Snowball\Stemmer\Danish;
-use Wamania\Snowball\Stemmer\Dutch;
-use Wamania\Snowball\Stemmer\English;
-use Wamania\Snowball\Stemmer\Finnish;
-use Wamania\Snowball\Stemmer\French;
-use Wamania\Snowball\Stemmer\German;
-use Wamania\Snowball\Stemmer\Italian;
-use Wamania\Snowball\Stemmer\Norwegian;
-use Wamania\Snowball\Stemmer\Portuguese;
-use Wamania\Snowball\Stemmer\Romanian;
-use Wamania\Snowball\Stemmer\Russian;
-use Wamania\Snowball\Stemmer\Spanish;
-use Wamania\Snowball\Stemmer\Stemmer;
-use Wamania\Snowball\Stemmer\Swedish;
 
 class StemmerFactory
 {

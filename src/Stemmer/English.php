@@ -1,6 +1,6 @@
 <?php
 
-namespace Wamania\Snowball\Stemmer;
+namespace Kaiju\Snowball\Stemmer;
 
 use Exception;
 use voku\helper\UTF8;
@@ -17,7 +17,7 @@ class English extends Stem
     /**
      * All english vowels.
      */
-    protected static $vowels = ['a', 'e', 'i', 'o', 'u', 'y'];
+    protected static array $vowels = ['a', 'e', 'i', 'o', 'u', 'y'];
 
     protected static $doubles = ['bb', 'dd', 'ff', 'gg', 'mm', 'nn', 'pp', 'rr', 'tt'];
 
@@ -26,7 +26,7 @@ class English extends Stem
     /**
      * {@inheritdoc}
      */
-    public function stem($word)
+    public function stem(string $word): string
     {
         // we do ALL in UTF-8
         if (!UTF8::is_utf8($word)) {
@@ -440,7 +440,7 @@ class English extends Stem
             $before = $position - 1;
             $letter = UTF8::substr($this->word, $before, 1);
 
-            if ($letter == 's' || $letter == 't') {
+            if ($letter === 's' || $letter === 't') {
                 $this->word = UTF8::substr($this->word, 0, $position);
             }
 
@@ -452,7 +452,7 @@ class English extends Stem
 
     /**
      * Step 5: *
-     * Search for the the following suffixes, and, if found, perform the action indicated.
+     * Search for the following suffixes, and, if found, perform the action indicated.
      */
     private function step5()
     {
@@ -476,7 +476,7 @@ class English extends Stem
             $before = $position - 1;
             $letter = UTF8::substr($this->word, $before, 1);
 
-            if ($letter == 'l') {
+            if ($letter === 'l') {
                 $this->word = UTF8::substr($this->word, 0, $position);
             }
 
@@ -488,7 +488,7 @@ class English extends Stem
 
     private function finish(): void
     {
-        $this->word = UTF8::str_replace('Y', 'y', $this->word);
+        $this->word = \str_replace('Y', 'y', $this->word);
     }
 
     private function exceptionR1(): void
@@ -533,11 +533,7 @@ class English extends Stem
             'andes' => 'andes',
         ];
 
-        if (isset($exceptions[$this->word])) {
-            return $exceptions[$this->word];
-        }
-
-        return null;
+        return $exceptions[$this->word] ?? null;
     }
 
     /**
@@ -556,24 +552,20 @@ class English extends Stem
             'succeed' => 'succeed',
         ];
 
-        if (isset($exceptions[$this->word])) {
-            return $exceptions[$this->word];
-        }
-
-        return null;
+        return $exceptions[$this->word] ?? null;
     }
 
     /**
      *  A word is called short if it ends in a short syllable, and if R1 is null.
      *  Note : R1 not really null, but the word at this state must be smaller than r1 index.
      *
-     *  @return bool
+     * @return bool
      */
     private function isShort()
     {
         $length = UTF8::strlen($this->word);
 
-        return  ($this->searchShortSyllabe(-3, 3) || $this->searchShortSyllabe(-2, 2)) && ($length == $this->r1Index);
+        return ($this->searchShortSyllabe(-3, 3) || $this->searchShortSyllabe(-2, 2)) && ($length == $this->r1Index);
     }
 
     /**
@@ -595,26 +587,21 @@ class English extends Stem
         }
 
         // (a) is just for beginning of the word
-        if (($nbLetters == 2) && ($from != 0)) {
+        if ($nbLetters === 2 && $from !== 0) {
             return false;
         }
 
         $first = UTF8::substr($this->word, $from, 1);
         $second = UTF8::substr($this->word, ($from + 1), 1);
 
-        if ($nbLetters == 2) {
-            if ((in_array($first, self::$vowels)) && (!in_array($second, self::$vowels))) {
-                return true;
-            }
+        if ($nbLetters === 2 && in_array($first, self::$vowels, true) && !in_array($second, self::$vowels, true)) {
+            return true;
         }
 
         $third = UTF8::substr($this->word, ($from + 2), 1);
 
-        if ((!in_array($first, self::$vowels)) && (in_array($second, self::$vowels))
-            && (!in_array($third, array_merge(self::$vowels, ['x', 'Y', 'w'])))) {
-            return true;
-        }
-
-        return false;
+        return !in_array($first, self::$vowels)
+            && in_array($second, self::$vowels)
+            && !in_array($third, array_merge(self::$vowels, ['x', 'Y', 'w']), true);
     }
 }

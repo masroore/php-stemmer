@@ -1,9 +1,9 @@
 <?php
 
-namespace Wamania\Snowball\Tests;
+namespace Kaiju\Snowball\Tests;
 
+use Kaiju\Snowball\Stemmer\Catalan;
 use PHPUnit\Framework\TestCase;
-use Wamania\Snowball\Stemmer\Catalan;
 
 class CatalanTest extends TestCase
 {
@@ -19,8 +19,8 @@ class CatalanTest extends TestCase
         self::assertEquals($stem, $snowballStem);
     }
 
-    public function load()
+    public function load(): CsvFileVerboseIterator
     {
-        return new CsvFileVerboseIterator('test/files/ca.txt');
+        return new CsvFileVerboseIterator('tests/files/ca.txt');
     }
 }

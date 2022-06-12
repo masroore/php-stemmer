@@ -1,6 +1,6 @@
 <?php
 
-namespace Wamania\Snowball\Stemmer;
+namespace Kaiju\Snowball\Stemmer;
 
 use Exception;
 use voku\helper\UTF8;
@@ -15,12 +15,12 @@ class Romanian extends Stem
     /**
      * All Romanian vowels.
      */
-    protected static $vowels = ['a', 'ă', 'â', 'e', 'i', 'î', 'o', 'u'];
+    protected static array $vowels = ['a', 'ă', 'â', 'e', 'i', 'î', 'o', 'u'];
 
     /**
      * {@inheritdoc}
      */
-    public function stem($word)
+    public function stem(string $word): string
     {
         // we do ALL in UTF-8
         if (!UTF8::is_utf8($word)) {

@@ -1,6 +1,6 @@
 <?php
 
-namespace Wamania\Snowball\Stemmer;
+namespace Kaiju\Snowball\Stemmer;
 
 use Exception;
 use voku\helper\UTF8;
@@ -25,9 +25,9 @@ class Catalan extends Stem
     /**
      * All catalan vowels.
      */
-    protected static $vowels = ['a', 'e', 'i', 'o', 'u', 'á', 'é', 'í', 'ó', 'ú', 'à', 'è', 'ï', 'ò', 'ü'];
+    protected static array $vowels = ['a', 'e', 'i', 'o', 'u', 'á', 'é', 'í', 'ó', 'ú', 'à', 'è', 'ï', 'ò', 'ü'];
 
-    protected static $standard_suffix_1a = [
+    protected static array $standard_suffix_1a = [
         'allengües', 'ativitats', 'bilitats', 'ionistes', 'ialistes', 'ialismes', 'ativitat', 'atòries', 'isament',
         'bilitat', 'ivitats', 'ionisme', 'ionista', 'ialista', 'ialisme', 'íssimes', 'formes', 'ivisme', 'aments',
         'nça', 'ificar', 'idores', 'ancies', 'atòria', 'ivitat', 'encies', 'ències', 'atives', 'íssima', 'íssims',
@@ -45,13 +45,13 @@ class Catalan extends Stem
         'ud', 'ots', 'ó',
     ];
 
-    protected static $attached_pronoun = [
+    protected static array $attached_pronoun = [
         'selas', 'selos', '\'hi', '\'ho', '\'ls', '-les', '-nos', '\'ns', 'sela', 'selo', '\'s', '\'l', '-ls', '-la',
         '-li', 'vos', 'nos', '-us', '\'n', '-ns', '\'m', '-me', '-te', '\'t', 'los', 'las', 'les', 'ens', 'se', 'us',
         '-n', '-m', 'li', 'lo', 'me', 'le', 'la', 'ho', 'hi',
     ];
 
-    protected static $verb_suffixes = [
+    protected static array $verb_suffixes = [
         'aríamos', 'eríamos', 'iríamos', 'eresseu', 'iéramos', 'iésemos', 'adores', 'aríais', 'aremos', 'eríais',
         'eremos', 'iríais', 'iremos', 'ierais', 'ieseis', 'asteis', 'isteis', 'ábamos', 'áramos', 'ásemos', 'isquen',
         'esquin', 'esquis', 'esques', 'esquen', 'ïsquen', 'ïsques', 'adora', 'adors', 'arían', 'arías', 'arian',
@@ -75,7 +75,7 @@ class Catalan extends Stem
         'ir', 'as', 'ii', 'io', 'ià', 'ís', 'ïx', 'ix', 'in', 'às', 'iï', 'iïs', 'í',
     ];
 
-    protected static $residual_suffixes = [
+    protected static array $residual_suffixes = [
         'itz', 'it', 'os', 'eu', 'iu', 'is', 'ir', 'ïn', 'ïs', 'a', 'o', 'á', 'à', 'í', 'ó', 'e', 'é', 'i', 's', 'ì',
         'ï',
     ];
@@ -83,7 +83,7 @@ class Catalan extends Stem
     /**
      * {@inheritdoc}
      */
-    public function stem($word)
+    public function stem(string $word): string
     {
         // we do ALL in UTF-8
         if (!UTF8::is_utf8($word)) {
@@ -121,7 +121,7 @@ class Catalan extends Stem
      * Search for the longest among the following suffixes
      * and delete it in R1.
      */
-    private function step0()
+    private function step0(): bool
     {
         if (($position = $this->search(static::$attached_pronoun)) !== false) {
             if ($this->inR1($position)) {
@@ -137,7 +137,7 @@ class Catalan extends Stem
     /**
      * Step 1a: Standard suffix.
      */
-    private function step1a()
+    private function step1a(): bool
     {
         // Run step 1a.2 before 1a.1, since they overlap on `cions` (1a.1) and `acions` (1a.2)
         //

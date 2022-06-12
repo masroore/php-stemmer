@@ -1,107 +1,91 @@
 <?php
 
-namespace Wamania\Snowball\Stemmer;
+declare(strict_types=1);
+
+namespace Kaiju\Snowball\Stemmer;
 
 use voku\helper\UTF8;
 
 abstract class Stem implements Stemmer
 {
-    protected static $vowels = ['a', 'e', 'i', 'o', 'u', 'y'];
+    protected static array $vowels = ['a', 'e', 'i', 'o', 'u', 'y'];
 
     /**
      * helper, contains stringified list of vowels.
-     *
-     * @var string
      */
-    protected $plainVowels;
+    protected string $plainVowels;
 
     /**
      * The word we are stemming.
-     *
-     * @var string
      */
-    protected $word;
+    protected string $word;
 
     /**
      * The original word, use to check if word has been modified.
-     *
-     * @var string
      */
-    protected $originalWord;
+    protected string $originalWord;
 
     /**
      * RV value.
-     *
-     * @var string
      */
-    protected $rv;
+    protected string $rv;
 
     /**
      * RV index (based on the beginning of the word).
-     *
-     * @var int
      */
-    protected $rvIndex;
+    protected int $rvIndex;
 
     /**
      * R1 value.
-     *
-     * @var int
      */
-    protected $r1;
+    protected int $r1;
 
     /**
      * R1 index (based on the beginning of the word).
-     *
-     * @var int
      */
-    protected $r1Index;
+    protected int $r1Index;
 
     /**
      * R2 value.
-     *
-     * @var int
      */
-    protected $r2;
+    protected int $r2;
 
     /**
      * R2 index (based on the beginning of the word).
-     *
-     * @var int
      */
-    protected $r2Index;
+    protected int $r2Index;
 
-    protected function inRv($position)
+    protected function inRv(int $position): bool
     {
         return $position >= $this->rvIndex;
     }
 
-    protected function inR1($position)
+    protected function inR1(int $position): bool
     {
         return $position >= $this->r1Index;
     }
 
-    protected function inR2($position)
+    protected function inR2(int $position): bool
     {
         return $position >= $this->r2Index;
     }
 
-    protected function searchIfInRv($suffixes)
+    protected function searchIfInRv(array $suffixes): bool|int
     {
         return $this->search($suffixes, $this->rvIndex);
     }
 
-    protected function searchIfInR1($suffixes)
+    protected function searchIfInR1(array $suffixes): bool|int
     {
         return $this->search($suffixes, $this->r1Index);
     }
 
-    protected function searchIfInR2($suffixes)
+    protected function searchIfInR2(array $suffixes): bool|int
     {
         return $this->search($suffixes, $this->r2Index);
     }
 
-    protected function search($suffixes, $offset = 0)
+    protected function search(array $suffixes, int $offset = 0): bool|int
     {
         $length = UTF8::strlen($this->word);
         if ($offset > $length) {
@@ -141,7 +125,7 @@ abstract class Stem implements Stemmer
      * R1 : $in = $this->word
      * R2 : $in = R1.
      */
-    protected function rx($in)
+    protected function rx(string $in): array
     {
         $length = UTF8::strlen($in);
 
@@ -182,7 +166,7 @@ abstract class Stem implements Stemmer
      * and otherwise (consonant-vowel case) RV is the region after the third letter.
      * But RV is the end of the word if these positions cannot be found.
      */
-    protected function rv()
+    protected function rv(): bool
     {
         $length = UTF8::strlen($this->word);
 

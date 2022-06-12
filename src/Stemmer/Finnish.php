@@ -5,7 +5,7 @@
  * @author msaari <mikko@mikkosaari.fi>
  */
 
-namespace Wamania\Snowball\Stemmer;
+namespace Kaiju\Snowball\Stemmer;
 
 use Exception;
 use voku\helper\UTF8;
@@ -22,7 +22,7 @@ class Finnish extends Stem
     /**
      * All swedish vowels.
      */
-    protected static $vowels = ['a', 'e', 'i', 'o', 'u', 'y', 'ä', 'ö'];
+    protected static array $vowels = ['a', 'e', 'i', 'o', 'u', 'y', 'ä', 'ö'];
 
     protected static $consonants = ['b', 'c', 'd', 'f', 'g', 'h', 'j',
         'k', 'l', 'm', 'n', 'p', 'q', 'r', 's', 't', 'v', 'w', 'x', 'z', ];
@@ -39,7 +39,7 @@ class Finnish extends Stem
     /**
      * {@inheritdoc}
      */
-    public function stem($word)
+    public function stem(string $word): string
     {
         // we do ALL in UTF-8
         if (!UTF8::is_utf8($word)) {
